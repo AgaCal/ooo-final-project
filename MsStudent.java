@@ -1,0 +1,5 @@
+
+public MsStudent extends GraduateStudent {
+
+}
+
