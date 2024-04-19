@@ -1,4 +1,4 @@
 
-public IdException extends Exception {
+public class IdException extends Exception {
 	
 }

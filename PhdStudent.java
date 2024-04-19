@@ -1,5 +1,5 @@
 
-public PhdStudent extends GraduateStudent {
+public class PhdStudent extends GraduateStudent {
 
 }
 

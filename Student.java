@@ -1,4 +1,4 @@
 
-public abstract Student {
+public class abstract Student {
 	abstract public void printInvoice();
 }
