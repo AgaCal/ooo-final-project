@@ -4,12 +4,11 @@
 import java.util.Scanner;
 
 public class ProjectDriver {
+	static Scanner scan = new Scanner(System.in);
 
 	public static void main(String[] args) {
 
 		int selection = -1;
-		Scanner scan = new Scanner(System.in);
-
 		while (selection != 0) {
 			System.out.println("---------------------------------------------------\n");
 			System.out.println("Main Menu\n");
@@ -34,7 +33,6 @@ public class ProjectDriver {
 
 	public static void manageStudent() {
 		char selection;
-		Scanner scan = new Scanner(System.in);
 
 		System.out.println("Student Management Menu:\n");
 
@@ -85,7 +83,6 @@ public class ProjectDriver {
 	public static void manageCourse() {
 
 		char selection;
-		Scanner scan = new Scanner(System.in);
 
 		System.out.println("Course Management Menu:\n");
 
