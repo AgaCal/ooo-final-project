@@ -2,9 +2,100 @@
 // Group Members: Agnieszka Calkowska, Erick Washbourne, Tomas Baron
 
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
+enum LectureType {
+	GRAD, UNDERGRAD;
+}
+
+enum LectureMode {
+	F2F, MIXED, ONLINE;
+}
 
 public class ProjectDriver {
 	static Scanner scan = new Scanner(System.in);
+	static ArrayList<UndergraduateStudent> undergradStudents = new ArrayList<UndergraduateStudent>();
+	static ArrayList<PhdStudent> phdStudents = new ArrayList<PhdStudent>();
+	static ArrayList<MsStudent> msStudents = new ArrayList<MsStudent>();
+	static ArrayList<Lecture> classList;
+
+	public static void getClasses(String[] args) throws FileNotFoundException {
+		classList = new ArrayList<Lecture>();
+		
+		Scanner readClasses = new Scanner(new File("lec.txt"));
+		
+		String line = "";
+		String[] lectureItems;
+		Lecture lecture=null;
+		
+		boolean skipLine = false;
+		boolean oneMorePass = false;
+		
+		while (readClasses.hasNextLine() || oneMorePass ) {
+			if (skipLine == false) {
+				line = readClasses.nextLine();
+			}
+			oneMorePass = false;
+		
+			lectureItems = line.split(",");
+			//--------------------------------------------------------------------
+		
+			if (lectureItems.length > 2) {// It must be F2F, Mixed or Online lecture
+				LectureType type; // Grad or UnderGrad
+				LectureMode mode; // Online, F2F or Mixed
+				ArrayList<Lab> labList = new ArrayList<>();
+				type = LectureType.GRAD;
+				if (lectureItems[3].compareToIgnoreCase("Graduate") != 0)
+				type = LectureType.UNDERGRAD;
+				// ________________________________________
+				if (lectureItems[4].compareToIgnoreCase("ONLINE") == 0) {
+					skipLine = false;
+					lecture = new Lecture(lectureItems[0],
+					lectureItems[1], lectureItems[2], type, LectureMode.ONLINE,
+					Integer.parseInt(lectureItems[5]));
+				} else {
+					mode = LectureMode.F2F;
+					if (lectureItems[4].compareToIgnoreCase("F2F") != 0)
+						mode = LectureMode.MIXED;
+					
+					boolean hasLabs = true;
+					if (lectureItems[6].compareToIgnoreCase("yes") != 0)
+						hasLabs = false;
+
+					if (hasLabs) {//Lecture has a lab
+						skipLine = true;
+						String[] labItems;
+
+						while (readClasses.hasNextLine()) {
+							line = readClasses.nextLine();
+							if (line.length() > 15) {//True if this is not a lab!
+								if ( readClasses.hasNextLine() == false) {//reading the last line if any...
+									oneMorePass = true;
+								}
+								break;
+							}
+
+							labItems = line.split(",");
+							Lab lab = new Lab(labItems[0],
+							labItems[1]);
+							labList.add(lab);
+						}//end of while
+						
+						lecture = new Lecture(lectureItems[0], lectureItems[1], lectureItems[2], type, mode, lectureItems[5], hasLabs,Integer.parseInt(lectureItems[7]), labList);
+					} else {//Lecture doesn't have a lab
+						skipLine = false;
+						lecture = new Lecture(lectureItems[0],
+						lectureItems[1], lectureItems[2], type, mode, lectureItems[5], hasLabs, Integer.parseInt(lectureItems[7]));
+					}
+				}
+			}
+			classList.add(lecture);
+		}//end of while
+
+		readClasses.close();
+	}
 
 	public static void main(String[] args) {
 
@@ -76,8 +167,34 @@ public class ProjectDriver {
 	}
 
 
+	// should be done
 	public static void printStudents() {
-		System.out.println("print students");
+		System.out.println("PhD Students");
+		System.out.println("------------");
+
+		for (Student student : phdStudents) {
+			System.out.println("    - " + student.getName());
+		}
+
+		System.out.println();
+
+		System.out.println("MS Students");
+		System.out.println("------------");
+
+		for (Student student : msStudents) {
+			System.out.println("    - " + student.getName());
+		}
+
+		System.out.println();
+
+		System.out.println("Underdraduate Students");
+		System.out.println("------------");
+
+		for (Student student : undergradStudents) {
+			System.out.println("    - " + student.getName());
+		}
+
+		System.out.println();
 	}
 
 	public static void manageCourse() {
