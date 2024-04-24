@@ -164,9 +164,35 @@ public class ProjectDriver {
 		System.out.println("del student");
 	}
 
-
+	//done
 	public static void printInvoice() {
-		System.out.println("print invoice");
+		String id = scan.next();
+
+		Student chosen = null;
+		for(UndergraduateStudent student: undergradStudents) {
+			if (student.getId().equals(id)) {
+				chosen = student;
+			}
+		}
+
+		for(MsStudent student: msStudents) {
+			if (student.getId().equals(id)) {
+				chosen = student;
+			}
+		}
+
+		for(PhdStudent student: phdStudents) {
+			if (student.getId().equals(id)) {
+				chosen = student;
+			}
+		}
+
+		if (chosen == null) {
+			System.out.println("No student with that id!");
+			return;
+		}
+
+		chosen.printInvoice();
 	}
 
 
