@@ -21,7 +21,8 @@ public class ProjectDriver {
 	static ArrayList<MsStudent> msStudents = new ArrayList<MsStudent>();
 	static ArrayList<Lecture> classList;
 
-	public static void getClasses(String[] args) throws FileNotFoundException {
+	// done, used his code
+	public static void getClasses() throws FileNotFoundException {
 		classList = new ArrayList<Lecture>();
 		
 		Scanner readClasses = new Scanner(new File("lec.txt"));
@@ -97,6 +98,7 @@ public class ProjectDriver {
 		readClasses.close();
 	}
 
+	// done
 	public static void main(String[] args) {
 
 		int selection = -1;
@@ -122,6 +124,7 @@ public class ProjectDriver {
 		scan.close();
 	}
 
+	// done 
 	public static void manageStudent() {
 		char selection;
 
@@ -167,7 +170,7 @@ public class ProjectDriver {
 	}
 
 
-	// should be done
+	// done
 	public static void printStudents() {
 		System.out.println("PhD Students");
 		System.out.println("------------");
@@ -197,6 +200,7 @@ public class ProjectDriver {
 		System.out.println();
 	}
 
+	// done
 	public static void manageCourse() {
 
 		char selection;
