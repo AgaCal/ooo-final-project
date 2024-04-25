@@ -373,9 +373,9 @@ public class ProjectDriver {
 
         // Otherwise remove the student from the appropriate list
         String name = student.getName(); // save the name for the success message
-        if(student.getClass().getName() == "UndergraduateStudent")undergradStudents.remove(student);
-        else if(student.getClass().getName() == "MsStudent")msStudents.remove(student);
-        else if(student.getClass().getName() == "PhdStudent")phdStudents.remove(student);
+        if (student instanceof UndergraduateStudent) undergradStudents.remove(student);
+        else if (student instanceof MsStudent) msStudents.remove(student);
+        else if (student instanceof PhdStudent) phdStudents.remove(student);
 
         // Print a success message
         System.out.printf("[ %s : %s ] removed successfully!\n\n", id, name);
@@ -508,30 +508,30 @@ public class ProjectDriver {
     public static void delClass() {
     	//Get a valid Lecture number from user
         String classNum = getValidInput("Enter the Class Number:\n> ", "Invalid input!",
-        scan::next, (s) -> s.matches("\\d{5}"));
+       	scan::next, (s) -> s.matches("\\d{5}"));
 
         //Find associated lecture in class List or null
         Lecture toDel = classList.stream()
         		.filter(s -> s.getCrn().equalsIgnoreCase(classNum))
-        		.findFirst()
-        		.orElse(null);
+                .findFirst()
+                .orElse(null);
 
         //If no class found then return
-        if(toDel == null){
-        	System.out.printf("No class with number %s\n\n", classNum);
-        	return;
+        if (toDel == null) {
+            System.out.printf("No class with number %s\n\n", classNum);
+            return;
         }
 
         //Remove the class from each of the respective students that can take the class
-        if(toDel.getLectureType() == LectureType.GRAD){
-        	for(int i = 0; i < msStudents.size(); i++){
-        		msStudents.get(i).classes.remove(toDel);
-        	}
-        }else{
-        	for(int i = 0; i < undergradStudents.size(); i++){
-        		undergradStudents.get(i).classes.remove(toDel);
-        	}
-        }
+        if (toDel.getLectureType() == LectureType.GRAD) {
+            for (int i = 0; i < msStudents.size(); i++) {
+                msStudents.get(i).classes.remove(toDel);
+            }
+        } else {
+            for (int i = 0; i < undergradStudents.size(); i++) {
+                undergradStudents.get(i).classes.remove(toDel);
+	        }
+	    }
 
         //Remove the class from the classList
         classList.remove(toDel);
