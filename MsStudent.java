@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class MsStudent extends GraduateStudent {
-	private ArrayList<Lecture> classes;
+	ArrayList<Lecture> classes;
 
 	public MsStudent(String name, String id, ArrayList<Lecture> classes) {
 		super(name, id);

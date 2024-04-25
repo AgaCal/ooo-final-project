@@ -1,9 +1,8 @@
 import java.util.ArrayList;
 
 public class PhdStudent extends GraduateStudent {
-
-	private ArrayList<Lab> labs;
 	private String advisor, subject;
+	ArrayList<Lab> labs;
 
 	public PhdStudent(String name, String advisor, String subject, String id, ArrayList<Lab> labs) {
 		super(name, id);
@@ -16,7 +15,7 @@ public class PhdStudent extends GraduateStudent {
 		System.out.println("VALENCE COLLEGE\nORLANDO FL 10101\n---------------------\n");
 		System.out.println("Fee Invoice Prepared for Student: \n" + getId() + "-" + getName() + "\n");
 		
-		System.out.println("RESEARCH\n" + subject + "\t\t\t$700.00");
+		System.out.println("RESEARCH\n" + subject + "\t\t\t\t$700.00");
 
 		System.out.println("\nHealth & id fees\t\t$35.00");
 		

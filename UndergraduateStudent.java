@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 public class UndergraduateStudent extends Student {
-	private ArrayList<Lecture> classes;
 	private boolean resident;
 	private double gpa;
+	ArrayList<Lecture> classes;
 
 	public UndergraduateStudent(String name, String id, double gpa, boolean resident, ArrayList<Lecture> classes) {
 		super(name, id);

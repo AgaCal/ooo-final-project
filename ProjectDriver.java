@@ -371,12 +371,9 @@ public class ProjectDriver {
 
         // Otherwise remove the student from the appropriate list
         String name = student.getName(); // save the name for the success message
-        switch (student) {
-            case UndergraduateStudent undergraduateStudent -> undergradStudents.remove(student);
-            case MsStudent msStudent -> msStudents.remove(student);
-            case PhdStudent phdStudent -> phdStudents.remove(student);
-            default -> { /* noop */ }
-        }
+        if(student.getClass().getName() == "UndergraduateStudent")undergradStudents.remove(student);
+        else if(student.getClass().getName() == "MsStudent")msStudents.remove(student);
+        else if(student.getClass().getName() == "PhdStudent")phdStudents.remove(student);
 
         // Print a success message
         System.out.printf("[ %s : %s ] removed successfully!\n\n", id, name);
@@ -474,7 +471,7 @@ public class ProjectDriver {
 
     public static void searchCourse() {
         // Get a valid class/lab number from the user
-        String classNum = getValidInput("Enter the class/lab number:\n> ", "Invalid input!",
+        String classNum = getValidInput("Enter the Class/Lab Number:\n> ", "Invalid input!",
                 scan::next, (s) -> s.matches("\\d{5}"));
 
         // Iterate through the list of lectures
@@ -505,17 +502,75 @@ public class ProjectDriver {
     }
 
     public static void delClass() {
-        System.out.println("del class");
+        String classNum = getValidInput("Enter the Class Number:\n> ", "Invalid input!",
+        scan::next, (s) -> s.matches("\\d{5}"));
+        Lecture toDel = classList.stream()
+        		.filter(s -> s.getCrn().equalsIgnoreCase(classNum))
+        		.findFirst()
+        		.orElse(null);
+
+
+        if(toDel == null){
+        	System.out.printf("No class with number %s\n\n", classNum);
+        	return;
+        }
+
+        if(toDel.getLectureType() == LectureType.GRAD){
+        	for(int i = 0; i < msStudents.size(); i++){
+        		msStudents.get(i).classes.remove(toDel);
+        	}
+        }else{
+        	for(int i = 0; i < undergradStudents.size(); i++){
+        		undergradStudents.get(i).classes.remove(toDel);
+        	}
+        }
+
+        classList.remove(toDel);
+
+        Scanner readClasses;
+        File lec;
+        try {
+            lec = new File("lec.txt");
+            readClasses = new Scanner(lec);
+        } catch (FileNotFoundException e) {
+            System.out.println("\"lec.txt\" file not found!");
+            return;
+        }
+
+        try {
+            File tmpFile = new File("tmp.txt");
+            FileWriter writer = new FileWriter(tmpFile, true);
+
+            while (readClasses.hasNextLine()) {
+                String read = readClasses.nextLine();
+                String[] readInfo = read.split(",");
+
+                if (!readInfo[0].equals(classNum)) {
+                    writer.write(read);
+                    writer.write("\n");
+                }
+
+            }
+
+            tmpFile.renameTo(lec);
+            writer.close();
+
+        } catch (IOException e) {
+            System.out.println("Something went wrong.\nPlease Try Again Later!");
+        } finally {
+            readClasses.close();
+            System.out.println("\n[ " + classNum + "," + toDel.getPrefix() + "," + toDel.getLectureName() + " ] deleted!\n");
+            return;
+        }
+
     }
 
     //done
     public static void addLab() {
-        System.out.print("Enter the Lecture Number to add Lab to: ");
-        String classNum = scan.next();
+        String classNum = getValidInput("Enter the Lecture Number to Add Lab To:\n> ", "Invalid input!",
+                scan::next, (s) -> s.matches("\\d{5}"));
 
-        Lecture addTo = Stream.of(
-                        classList.stream())
-                .flatMap(s -> s)
+        Lecture addTo = classList.stream()
                 .filter(s -> s.getCrn().equalsIgnoreCase(classNum))
                 .findFirst()
                 .orElse(null);
@@ -533,7 +588,7 @@ public class ProjectDriver {
         scan.nextLine();
         String other = scan.nextLine();
         String[] info = other.split(",");
-
+        
 
         for (Lecture l : classList) {
             if (l.getCrn().equals(info[0])) {
