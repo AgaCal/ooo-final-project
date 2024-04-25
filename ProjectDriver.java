@@ -2,7 +2,9 @@
 // Group Members: Agnieszka Calkowska, Erick Washbourne, Tomas Baron
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -374,8 +376,92 @@ public class ProjectDriver {
         System.out.println("del class");
     }
 
+    //done
     public static void addLab() {
-        System.out.println("add lab");
+		System.out.print("Enter the Lecture Number to add Lab to: ");
+		String classNum = scan.next();
+
+		Lecture addTo = Stream.of(
+						classList.stream())
+                .flatMap(s -> s)
+                .filter(s -> s.getCrn().equalsIgnoreCase(classNum))
+                .findFirst()
+                .orElse(null);
+
+
+		if(addTo == null){
+			System.out.println(classNum + " is invalid.\nPlease Try Again Later!");
+			return;
+		}else if(addTo.getLectureMode() == LectureMode.ONLINE){
+			System.out.println(classNum + " is an online class, no labs can be added!");
+			return;
+		}
+
+		System.out.println(classNum + " is valid. Enter the rest of the information: ");
+		scan.nextLine();
+		String other = scan.nextLine();
+		String[] info = other.split(",");
+
+
+		for(Lecture l: classList){
+			if(l.getCrn().equals(info[0])){
+				System.out.println("Sorry that Class Number already exists.\nPlease try again later!");
+				return;
+			}
+			if(l.getHasLabs()){
+				for(Lab lab: l.labs){
+					if(lab.getCrn().equals(info[0])){
+						System.out.println("Sorry that Class Number already exists.\nPlease try again later!");
+						return;
+					}
+				}
+			}
+		}
+
+
+		Lab toAdd = new Lab(info[0], info[1]);
+		if(!addTo.getHasLabs()){
+			addTo.setHasLabs(true);
+			addTo.labs = new ArrayList<Lab>();
+		}
+		addTo.labs.add(toAdd);
+
+		Scanner readClasses;
+		File lec;
+		try{
+			lec = new File("lec.txt");
+			readClasses = new Scanner(lec);
+		}catch (FileNotFoundException e){
+			System.out.println("\"lec.txt\" file not found!");
+			return;
+		}
+
+		try {
+			File tmpFile = new File("tmp.txt");
+	        FileWriter writer = new FileWriter(tmpFile, true);
+
+			while (readClasses.hasNextLine()){
+				String read = readClasses.nextLine();
+				String[] readInfo = read.split(",");
+
+				if(readInfo[0].equals(classNum)){
+					writer.write(addTo.toString());
+				}else{
+					writer.write(read);
+					writer.write("\n");
+				}
+
+			}
+
+			tmpFile.renameTo(lec);
+			writer.close();
+
+        } catch (IOException e) {
+        	System.out.println("Something went wrong.\nPlease Try Again Later!");
+        } finally{
+			readClasses.close();
+        	return;
+        }
     }
 
 }

@@ -77,10 +77,19 @@ class Lecture {
 		return creditHours;
 	}
 
+	public void setHasLabs(boolean hasLabs){
+		this.hasLabs = hasLabs;
+	}
+
 	//________
 	@Override
 	public String toString() {
-		String lectureAndLabs = crn + "," + prefix + "," + lectureName + "," + lectureType + "," + lectureMode + "," + hasLabs + ","+ creditHours+"\n";
+		String yesNo = hasLabs ? "YES" : "NO";
+		String lectureAndLabs = crn + "," + prefix + "," + lectureName + "," + lectureType + "," + lectureMode;
+		if(lectureMode != LectureMode.ONLINE){
+			lectureAndLabs += "," + classroom;
+		}
+		lectureAndLabs += "," + yesNo + ","+ creditHours+"\n";
 		
 		if ( labs != null ) {//printing corresponding labs
 			//lectureAndLabs+="\n";
