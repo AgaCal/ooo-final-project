@@ -45,6 +45,38 @@ class Lecture {
 		this.creditHours = creditHours;
 	}
 
+	public String getCrn() {
+		return crn;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public String getLectureName() {
+		return lectureName;
+	}
+
+	public LectureType getLectureType() {
+		return lectureType;
+	}
+
+	public LectureMode getLectureMode() {
+		return lectureMode;
+	}
+
+	public String getClassroom() {
+		return classroom;
+	}
+
+	public boolean getHasLabs() {
+		return hasLabs;
+	}
+
+	public int getCreditHours() {
+		return creditHours;
+	}
+
 	//________
 	@Override
 	public String toString() {

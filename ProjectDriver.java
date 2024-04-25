@@ -257,7 +257,26 @@ public class ProjectDriver {
 	}
 
 	public static void searchCourse() {
-		System.out.println("search for a class");
+		System.out.println("Enter the Class/Lab Number: ");
+		String classNum = scan.next();
+
+		for(int i = 0; i < classList.size(); i++){
+			Lecture currentLec = classList.get(i);
+			if(currentLec.getCrn().equals(classNum)){
+				System.out.println("[ " + currentLec.getCrn() + "," + currentLec.getPrefix() + "," + currentLec.getLectureName() + " ]");
+				break;
+			}
+			if(currentLec.getHasLabs()){
+				for(int j = 0; j < currentLec.labs.size(); j++){
+					Lab currentLab = currentLec.labs.get(j);
+					if(currentLab.getCrn().equals(classNum)){
+						System.out.println("Lab for [ " + currentLec.getCrn() + "," + currentLec.getPrefix() + "," + currentLec.getLectureName() + " ]");
+						System.out.println("Lab Room " + currentLab.getClassroom());
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	public static void delClass() {

@@ -23,11 +23,10 @@ public class UndergraduateStudent extends Student {
 		System.out.println("\nCRN\tCRN_PREFIX\tCR_HOURS");
 
 		for(int i = 0; i < classes.size(); i++) {
-			String[] courseInfo = classes.get(i).toString().split(",");
 
-			String crn = courseInfo[0];
-			String prefix = courseInfo[1];
-			int crHrs = Integer.valueOf(courseInfo[6].split("\n")[0]);
+			String crn = classes.get(i).getCrn();
+			String prefix = classes.get(i).getPrefix();
+			int crHrs = classes.get(i).getCreditHours();
 
 			System.out.printf("%s\t%s\t\t%d\t$%.2f\n", crn, prefix, crHrs, crHrs*rate);
 			total += crHrs*rate;
