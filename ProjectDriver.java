@@ -117,7 +117,10 @@ public class ProjectDriver {
                 // Read the input and check for validity
                 result = reader.get();
                 if (validator.test(result)) break;
-            } catch (Exception e) { /* noop */ }
+            } catch (InputMismatchException e) {
+                // If input mismatched, the buffer won't skip the invalid input
+                scan.next();
+            }
 
             // Print an error message if the input was invalid (either bad input or failed validation)
             System.out.println(err);
