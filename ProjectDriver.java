@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -283,7 +284,7 @@ public class ProjectDriver {
                         // filter out any empty optionals (non-existent labs)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .toList();
+                        .collect(Collectors.toList());
 
                 // Add the student to the list
                 phdStudents.add(new PhdStudent(
@@ -303,7 +304,7 @@ public class ProjectDriver {
                         // filter out any empty optionals (non-existent lectures)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .toList();
+                        .collect(Collectors.toList());
 
                 // Add the student to the list
                 msStudents.add(new MsStudent(
@@ -330,7 +331,7 @@ public class ProjectDriver {
                         // filter out any empty optionals (non-existent lectures)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .toList();
+                        .collect(Collectors.toList());
 
                 // Construct the student and add them to the list
                 undergradStudents.add(new UndergraduateStudent(
