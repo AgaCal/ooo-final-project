@@ -25,14 +25,16 @@ public class PhdStudent extends GraduateStudent {
 			System.out.printf("----------------------------------------\n\t\t\t\t$%.2f\n", total);
 			System.out.printf("\t\t\t\t-$%.2f\n", total*.50);
 			System.out.printf("\t\t\t\t-------\n\tTotal Payments\t\t$%.2f\n", total*.50);
-		}else if (labs.size() >= 3) {
+		} else if (labs.size() >= 3) {
 			System.out.printf("----------------------------------------\n\t\t\t\t$%.2f\n", total);
 			System.out.printf("\t\t\t\t-$%.2f\n", 700);
 			total -= 700;
 			System.out.printf("\t\t\t\t-------\n\tTotal Payments\t\t$%.2f\n", total);
-		}else {
+		} else {
 			System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
 		}
+
+		System.out.println();
 	}
 }
 
