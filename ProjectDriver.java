@@ -1,290 +1,381 @@
 // COP3330 Final Project
 // Group Members: Agnieszka Calkowska, Erick Washbourne, Tomas Baron
 
-import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 enum LectureType {
-	GRAD, UNDERGRAD;
+    GRAD, UNDERGRAD;
 }
 
 enum LectureMode {
-	F2F, MIXED, ONLINE;
+    F2F, MIXED, ONLINE;
 }
 
 public class ProjectDriver {
-	static Scanner scan = new Scanner(System.in);
-	static ArrayList<UndergraduateStudent> undergradStudents = new ArrayList<UndergraduateStudent>();
-	static ArrayList<PhdStudent> phdStudents = new ArrayList<PhdStudent>();
-	static ArrayList<MsStudent> msStudents = new ArrayList<MsStudent>();
-	static ArrayList<Lecture> classList;
+    static Scanner scan = new Scanner(System.in);
+    static ArrayList<UndergraduateStudent> undergradStudents = new ArrayList<UndergraduateStudent>();
+    static ArrayList<PhdStudent> phdStudents = new ArrayList<PhdStudent>();
+    static ArrayList<MsStudent> msStudents = new ArrayList<MsStudent>();
+    static ArrayList<Lecture> classList;
 
-	// done, used his code
-	public static void getClasses() throws FileNotFoundException {
-		classList = new ArrayList<Lecture>();
-		
-		Scanner readClasses = new Scanner(new File("lec.txt"));
-		
-		String line = "";
-		String[] lectureItems;
-		Lecture lecture=null;
-		
-		boolean skipLine = false;
-		boolean oneMorePass = false;
-		
-		while (readClasses.hasNextLine() || oneMorePass ) {
-			if (skipLine == false) {
-				line = readClasses.nextLine();
-			}
-			oneMorePass = false;
-		
-			lectureItems = line.split(",");
-			//--------------------------------------------------------------------
-		
-			if (lectureItems.length > 2) {// It must be F2F, Mixed or Online lecture
-				LectureType type; // Grad or UnderGrad
-				LectureMode mode; // Online, F2F or Mixed
-				ArrayList<Lab> labList = new ArrayList<>();
-				type = LectureType.GRAD;
-				if (lectureItems[3].compareToIgnoreCase("Graduate") != 0)
-				type = LectureType.UNDERGRAD;
-				// ________________________________________
-				if (lectureItems[4].compareToIgnoreCase("ONLINE") == 0) {
-					skipLine = false;
-					lecture = new Lecture(lectureItems[0],
-					lectureItems[1], lectureItems[2], type, LectureMode.ONLINE,
-					Integer.parseInt(lectureItems[5]));
-				} else {
-					mode = LectureMode.F2F;
-					if (lectureItems[4].compareToIgnoreCase("F2F") != 0)
-						mode = LectureMode.MIXED;
-					
-					boolean hasLabs = true;
-					if (lectureItems[6].compareToIgnoreCase("yes") != 0)
-						hasLabs = false;
+    // done, used his code
+    public static void getClasses() throws FileNotFoundException {
+        classList = new ArrayList<Lecture>();
 
-					if (hasLabs) {//Lecture has a lab
-						skipLine = true;
-						String[] labItems;
+        Scanner readClasses = new Scanner(new File("lec.txt"));
 
-						while (readClasses.hasNextLine()) {
-							line = readClasses.nextLine();
-							if (line.length() > 15) {//True if this is not a lab!
-								if ( readClasses.hasNextLine() == false) {//reading the last line if any...
-									oneMorePass = true;
-								}
-								break;
-							}
+        String line = "";
+        String[] lectureItems;
+        Lecture lecture = null;
 
-							labItems = line.split(",");
-							Lab lab = new Lab(labItems[0],
-							labItems[1]);
-							labList.add(lab);
-						}//end of while
-						
-						lecture = new Lecture(lectureItems[0], lectureItems[1], lectureItems[2], type, mode, lectureItems[5], hasLabs,Integer.parseInt(lectureItems[7]), labList);
-					} else {//Lecture doesn't have a lab
-						skipLine = false;
-						lecture = new Lecture(lectureItems[0],
-						lectureItems[1], lectureItems[2], type, mode, lectureItems[5], hasLabs, Integer.parseInt(lectureItems[7]));
-					}
-				}
-			}
-			classList.add(lecture);
-		}//end of while
+        boolean skipLine = false;
+        boolean oneMorePass = false;
 
-		readClasses.close();
-	}
+        while (readClasses.hasNextLine() || oneMorePass) {
+            if (skipLine == false) {
+                line = readClasses.nextLine();
+            }
+            oneMorePass = false;
 
-	// done
-	public static void main(String[] args) {
+            lectureItems = line.split(",");
+            //--------------------------------------------------------------------
 
-		int selection = -1;
-		while (selection != 0) {
-			System.out.println("---------------------------------------------------\n");
-			System.out.println("Main Menu\n");
+            if (lectureItems.length > 2) {// It must be F2F, Mixed or Online lecture
+                LectureType type; // Grad or UnderGrad
+                LectureMode mode; // Online, F2F or Mixed
+                ArrayList<Lab> labList = new ArrayList<>();
+                type = LectureType.GRAD;
+                if (lectureItems[3].compareToIgnoreCase("Graduate") != 0)
+                    type = LectureType.UNDERGRAD;
+                // ________________________________________
+                if (lectureItems[4].compareToIgnoreCase("ONLINE") == 0) {
+                    skipLine = false;
+                    lecture = new Lecture(lectureItems[0],
+                            lectureItems[1], lectureItems[2], type, LectureMode.ONLINE,
+                            Integer.parseInt(lectureItems[5]));
+                } else {
+                    mode = LectureMode.F2F;
+                    if (lectureItems[4].compareToIgnoreCase("F2F") != 0)
+                        mode = LectureMode.MIXED;
 
-			System.out.println("1 : Student Management");
-			System.out.println("2 : Course Management");
-			System.out.println("0 : Exit\n");
+                    boolean hasLabs = true;
+                    if (lectureItems[6].compareToIgnoreCase("yes") != 0)
+                        hasLabs = false;
 
-			System.out.print("\tEnter your selection: ");
+                    if (hasLabs) {//Lecture has a lab
+                        skipLine = true;
+                        String[] labItems;
 
-			selection = scan.nextInt();
+                        while (readClasses.hasNextLine()) {
+                            line = readClasses.nextLine();
+                            if (line.length() > 15) {//True if this is not a lab!
+                                if (readClasses.hasNextLine() == false) {//reading the last line if any...
+                                    oneMorePass = true;
+                                }
+                                break;
+                            }
 
-			System.out.println("\n-----------------\n");
+                            labItems = line.split(",");
+                            Lab lab = new Lab(labItems[0],
+                                    labItems[1]);
+                            labList.add(lab);
+                        }//end of while
 
-			if (selection == 1) manageStudent();
-			else if (selection == 2) manageCourse();
-		}
+                        lecture = new Lecture(lectureItems[0], lectureItems[1], lectureItems[2], type, mode, lectureItems[5], hasLabs, Integer.parseInt(lectureItems[7]), labList);
+                    } else {//Lecture doesn't have a lab
+                        skipLine = false;
+                        lecture = new Lecture(lectureItems[0],
+                                lectureItems[1], lectureItems[2], type, mode, lectureItems[5], hasLabs, Integer.parseInt(lectureItems[7]));
+                    }
+                }
+            }
+            classList.add(lecture);
+        }//end of while
 
-		System.out.println("Take Care!\n");
-		scan.close();
-	}
+        readClasses.close();
+    }
 
-	// done 
-	public static void manageStudent() {
-		char selection;
+    // Reads input until it matches a given predicate (and doesn't throw an exception)
+    public static <T> T getValidInput(String prompt, String err, Supplier<T> reader, Predicate<T> validator) {
+        // Declare the input result
+        T result;
 
-		System.out.println("Student Management Menu:\n");
+        // Loop until we get valid input
+        while (true) {
+            // Print the prompt and try to read input
+            System.out.print(prompt);
+            try {
+                // Read the input and check for validity
+                result = reader.get();
+                if (validator.test(result)) break;
+            } catch (Exception e) { /* noop */ }
 
-		System.out.println("Choose one of:\n");
+            // Print an error message if the input was invalid (either bad input or failed validation)
+            System.out.println(err);
+        }
 
-		System.out.println("  A - Search add a student");
-		System.out.println("  B - Delete a Student");
-		System.out.println("  C - Print Fee Invoice");
-		System.out.println("  D - Print List of Students");
-		System.out.println("  X - Back to Main Menu\n\n");
+        // Return the (necessarily valid) result
+        return result;
+    }
 
-		System.out.print ("Enter your selection: ");
+    // Checks if a given string is a valid student ID
+    public static boolean isValidId(String id) {
+        return id.matches("[A-za-z]{2}\\d{4}");
+    }
 
-		selection = scan.next().charAt(0);
+    // Retrieves a character (only one) from the user; strings of length != 1 will throw an exception
+    public static char getSingleCharacter(Scanner scan) throws InputMismatchException {
+        String input = scan.next();
+        if (input.length() != 1) throw new InputMismatchException();
+        return input.charAt(0);
+    }
 
-		System.out.println();
+    // done (?)
+    public static void main(String[] args) {
+        // Load the class list from the file
+        try {
+            getClasses();
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: Could not load class list from file!\nExiting...");
+            return;
+        }
 
-		if (selection >= 'a') selection += 'A' - 'a';
+        // Main menu loop
+        int selection = -1;
+        while (selection != 0) {
+            // Print the main menu header
+            System.out.println("=========");
+            System.out.println("Main Menu");
+            System.out.println("=========\n");
 
-		if (selection == 'A') addStudent();
-		else if (selection == 'B') delStudent();
-		else if (selection == 'C') printInvoice();
-		else if (selection == 'D') printStudents();
-		else return;
-		
-		manageStudent();
-	}
+            // Print the menu options
+            System.out.println("Choose one of:\n");
+            System.out.println("  1 - Student Management");
+            System.out.println("  2 - Course Management");
+            System.out.println("  0 - Exit\n");
 
-	public static void addStudent() {
-		System.out.println("add student");
-	}
+            // Get a valid selection from the user
+            selection = getValidInput("Enter your selection (0-2):\n> ", "Invalid input!",
+                    scan::nextInt, (s) -> s >= 0 && s <= 2);
+
+            // Print an empty line for spacing
+            System.out.println();
+
+            // Go to a sub-menu if one was selected
+            if (selection == 1) manageStudent();
+            else if (selection == 2) manageCourse();
+        }
+
+        // Print a goodbye message and close the scanner
+        System.out.println("Take Care!\n");
+        scan.close();
+    }
+
+    // done
+    public static void manageStudent() {
+        // Print the menu header
+        System.out.println("=======================");
+        System.out.println("Student Management Menu");
+        System.out.println("=======================\n");
+
+        // Print the menu options
+        System.out.println("Choose one of:");
+        System.out.println("  A - Add a student");
+        System.out.println("  B - Delete a student");
+        System.out.println("  C - Search for a student by ID");
+        System.out.println("  D - Print a student's fee invoice");
+        System.out.println("  E - Print all students");
+        System.out.println("  X - Exit to main menu\n");
+
+        // Read input until we get a valid selection
+        char selection = getValidInput("Enter your selection (A/B/C/D/E/X):\n> ", "Invalid input!",
+                () -> Character.toUpperCase(getSingleCharacter(scan)),
+                (ch) -> "ABCDEX".contains(ch + ""));
+        System.out.println(); // extra spacing
+
+        // Perform the action based on the selection
+        switch (selection) {
+            case 'A':
+                // Add a student
+                addStudent();
+                break;
+
+            case 'B':
+                // Delete a student
+                delStudent();
+                break;
+
+            case 'C':
+                // Retrieve student info by ID
+                searchStudent();
+                break;
+
+            case 'D':
+                // Print a student's fee invoice
+                printInvoice();
+                break;
+
+            case 'E':
+                // Print all students
+                printStudents();
+                break;
+
+            case 'X':
+                // Exit to main menu
+                return;
+        }
+
+        // If we didn't exit, recurse again
+        manageStudent();
+    }
+
+    public static void addStudent() {
+        System.out.println("add student");
+    }
 
 
-	public static void delStudent() {
-		System.out.println("del student");
-	}
+    public static void delStudent() {
+        System.out.println("del student");
+    }
 
-	//done
-	public static void printInvoice() {
-		String id = scan.next();
+    public static void searchStudent() {
+        System.out.println("search student");
+    }
 
-		Student chosen = null;
-		for(UndergraduateStudent student: undergradStudents) {
-			if (student.getId().equals(id)) {
-				chosen = student;
-			}
-		}
+    // done
+    public static void printInvoice() {
+        // Get a valid student ID from the user
+        String id = getValidInput("Enter the student's ID:\n> ", "Invalid input!",
+                scan::next, ProjectDriver::isValidId);
 
-		for(MsStudent student: msStudents) {
-			if (student.getId().equals(id)) {
-				chosen = student;
-			}
-		}
+        // Find a student in any of the lists matching the ID
+        Student student = Stream.of(
+                        undergradStudents.stream(),
+                        msStudents.stream(),
+                        phdStudents.stream())
+                .flatMap(s -> s)
+                .filter(s -> s.getId().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
 
-		for(PhdStudent student: phdStudents) {
-			if (student.getId().equals(id)) {
-				chosen = student;
-			}
-		}
+        // If we didn't find a student, print an error message and return
+        if (student == null) {
+            System.out.printf("No student found with ID %s!\n\n", id);
+            return;
+        }
 
-		if (chosen == null) {
-			System.out.println("No student with that id!");
-			return;
-		}
-
-		chosen.printInvoice();
-	}
+        // Otherwise, print the student's invoice
+        student.printInvoice();
+    }
 
 
-	// done
-	public static void printStudents() {
-		System.out.println("PhD Students");
-		System.out.println("------------");
+    // done
+    public static void printStudents() {
+        System.out.println("PhD Students");
+        System.out.println("------------");
+        phdStudents.forEach(s -> System.out.println("    - " + s.getName()));
+        System.out.println();
 
-		for (Student student : phdStudents) {
-			System.out.println("    - " + student.getName());
-		}
+        System.out.println("MS Students");
+        System.out.println("-----------");
+        msStudents.forEach(s -> System.out.println("    - " + s.getName()));
+        System.out.println();
 
-		System.out.println();
+        System.out.println("Underdraduate Students");
+        System.out.println("----------------------");
+        undergradStudents.forEach(s -> System.out.println("    - " + s.getName()));
+        System.out.println();
+    }
 
-		System.out.println("MS Students");
-		System.out.println("------------");
+    // done
+    public static void manageCourse() {
+        System.out.println("======================");
+        System.out.println("Course Management Menu");
+        System.out.println("======================\n");
 
-		for (Student student : msStudents) {
-			System.out.println("    - " + student.getName());
-		}
+        System.out.println("Choose one of:\n");
+        System.out.println("  A - Search by class/lab number");
+        System.out.println("  B - Delete a class");
+        System.out.println("  C - Add a lab to a class");
+        System.out.println("  X - Exit to Main Menu\n");
 
-		System.out.println();
+        // Read input until we get a valid selection
+        char selection = getValidInput("Enter your selection (A/B/C/X):\n> ", "Invalid input!",
+                () -> Character.toUpperCase(getSingleCharacter(scan)),
+                (s) -> "ABCX".contains(s + ""));
+        System.out.println();
 
-		System.out.println("Underdraduate Students");
-		System.out.println("------------");
+        // Perform the action based on the selection
+        switch (selection) {
+            case 'A':
+                // Search for a class/lab
+                searchCourse();
+                break;
 
-		for (Student student : undergradStudents) {
-			System.out.println("    - " + student.getName());
-		}
+            case 'B':
+                // Delete a class
+                delClass();
+                break;
 
-		System.out.println();
-	}
+            case 'C':
+                // Add a lab to a class
+                addLab();
+                break;
 
-	// done
-	public static void manageCourse() {
+            case 'X':
+                // Exit to main menu
+                return;
+        }
 
-		char selection;
+        // If we didn't exit, recurse again
+        manageCourse();
+    }
 
-		System.out.println("Course Management Menu:\n");
+    public static void searchCourse() {
+        // Get a valid class/lab number from the user
+        String classNum = getValidInput("Enter the class/lab number:\n> ", "Invalid input!",
+                scan::next, (s) -> s.matches("\\d{5}"));
 
-		System.out.println("Choose one of:\n");
+        // Iterate through the list of lectures
+        for (Lecture currentLec : classList) {
+            // Check the current lecture
+            if (currentLec.getCrn().equals(classNum)) {
+                // If this lecture matches, print the info and return
+                System.out.printf("[ %s,%s,%s ]\n", currentLec.getCrn(), currentLec.getPrefix(), currentLec.getLectureName());
+                return;
+            }
 
-		System.out.println("  A - Search for a class or lab using the class/lab number");
-		System.out.println("  B - delete a class");
-		System.out.println("  C - Add a lab to a class");
-		System.out.println("  X - Back to Main Menu\n\n");
+            // Check any labs associated with the lecture
+            if (currentLec.getHasLabs()) {
+                for (int j = 0; j < currentLec.labs.size(); j++) {
+                    Lab currentLab = currentLec.labs.get(j);
+                    if (currentLab.getCrn().equals(classNum)) {
+                        // If we found the lab, print the info and return
+                        System.out.printf("Lab for [ %s,%s,%s ]\n", currentLec.getCrn(), currentLec.getPrefix(), currentLec.getLectureName());
+                        System.out.println("Lab room " + currentLab.getClassroom());
+                        return;
+                    }
+                }
+            }
+        }
 
-		System.out.print ("Enter your selection: ");
+        // If we didn't find the class/lab, print empty course info
+        System.out.println("[ No such lecture/lab ]\n");
+    }
 
-		selection = scan.next().charAt(0);
+    public static void delClass() {
+        System.out.println("del class");
+    }
 
-		System.out.println();
-
-		if (selection >= 'a') selection += 'A' - 'a';
-
-		if (selection == 'A') searchCourse();
-		else if (selection == 'B') delClass();
-		else if (selection == 'C') addLab();
-		else return;
-		
-		manageCourse();
-	}
-
-	public static void searchCourse() {
-		System.out.println("Enter the Class/Lab Number: ");
-		String classNum = scan.next();
-
-		for(int i = 0; i < classList.size(); i++){
-			Lecture currentLec = classList.get(i);
-			if(currentLec.getCrn().equals(classNum)){
-				System.out.println("[ " + currentLec.getCrn() + "," + currentLec.getPrefix() + "," + currentLec.getLectureName() + " ]");
-				break;
-			}
-			if(currentLec.getHasLabs()){
-				for(int j = 0; j < currentLec.labs.size(); j++){
-					Lab currentLab = currentLec.labs.get(j);
-					if(currentLab.getCrn().equals(classNum)){
-						System.out.println("Lab for [ " + currentLec.getCrn() + "," + currentLec.getPrefix() + "," + currentLec.getLectureName() + " ]");
-						System.out.println("Lab Room " + currentLab.getClassroom());
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	public static void delClass() {
-		System.out.println("del class");
-	}
-
-	public static void addLab() {
-		System.out.println("add lab");
-	}
+    public static void addLab() {
+        System.out.println("add lab");
+    }
 
 }
