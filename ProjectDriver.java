@@ -346,7 +346,37 @@ public class ProjectDriver {
     }
 
     public static void delStudent() {
-        System.out.println("del student");
+        // Get a valid student ID from the user
+        String id = getValidInput("Enter the student's ID:\n> ", "Invalid input!",
+                scan::next, ProjectDriver::isValidId);
+
+        // Find a student in any of the lists matching the ID
+        var student = Stream.of(
+                        undergradStudents.stream(),
+                        msStudents.stream(),
+                        phdStudents.stream())
+                .flatMap(s -> s)
+                .filter(s -> s.getId().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
+
+        // If we didn't find a student, print an error message and return
+        if (student == null) {
+            System.out.printf("No student found with ID %s!\n\n", id);
+            return;
+        }
+
+        // Otherwise remove the student from the appropriate list
+        String name = student.getName(); // save the name for the success message
+        switch (student) {
+            case UndergraduateStudent undergraduateStudent -> undergradStudents.remove(student);
+            case MsStudent msStudent -> msStudents.remove(student);
+            case PhdStudent phdStudent -> phdStudents.remove(student);
+            default -> { /* noop */ }
+        }
+
+        // Print a success message
+        System.out.printf("[ %s : %s ] removed successfully!\n\n", id, name);
     }
 
     // done
