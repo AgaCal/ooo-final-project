@@ -2,12 +2,10 @@
 // Group Members: Agnieszka Calkowska, Erick Washbourne, Tomas Baron
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -191,22 +189,26 @@ public class ProjectDriver {
         System.out.println("Choose one of:");
         System.out.println("  A - Add a student");
         System.out.println("  B - Delete a student");
-        System.out.println("  C - Search for a student by ID");
-        System.out.println("  D - Print a student's fee invoice");
-        System.out.println("  E - Print all students");
+        System.out.println("  C - Print a student's fee invoice");
+        System.out.println("  D - Print all students");
         System.out.println("  X - Exit to main menu\n");
 
         // Read input until we get a valid selection
-        char selection = getValidInput("Enter your selection (A/B/C/D/E/X):\n> ", "Invalid input!",
+        char selection = getValidInput("Enter your selection (A/B/C/D/X):\n> ", "Invalid input!",
                 () -> Character.toUpperCase(getSingleCharacter(scan)),
-                (ch) -> "ABCDEX".contains(ch + ""));
+                (ch) -> "ABCDX".contains(ch + ""));
         System.out.println(); // extra spacing
 
         // Perform the action based on the selection
         switch (selection) {
             case 'A':
-                // Add a student
-                addStudent();
+                try {
+                    // Try to a student
+                    addStudent();
+                } catch (IdException e) {
+                    // If we caught an ID exception, print the error message
+                    System.out.println(e + "\n");
+                }
                 break;
 
             case 'B':
@@ -215,16 +217,11 @@ public class ProjectDriver {
                 break;
 
             case 'C':
-                // Retrieve student info by ID
-                searchStudent();
-                break;
-
-            case 'D':
                 // Print a student's fee invoice
                 printInvoice();
                 break;
 
-            case 'E':
+            case 'D':
                 // Print all students
                 printStudents();
                 break;
@@ -238,17 +235,116 @@ public class ProjectDriver {
         manageStudent();
     }
 
-    public static void addStudent() {
-        System.out.println("add student");
-    }
+    public static void addStudent() throws IdException {
+        // Get the student ID
+        String id = getValidInput("Enter the student's ID:\n> ", "Invalid input!",
+                scan::next, ProjectDriver::isValidId);
 
+        // Check if the student already exists
+        if (Stream.of(undergradStudents.stream(), msStudents.stream(), phdStudents.stream())
+                .flatMap(s -> s)
+                .anyMatch(s -> s.getId().equalsIgnoreCase(id))) {
+            // If so, throw an ID exception
+            throw new IdException();
+        }
+
+        // Get the student type
+        String type = getValidInput("Enter the student's type (PhD/MS/U/Undergrad):\n> ", "Invalid input!",
+                scan::next,
+                (s) -> {
+                    // Check if the input is a valid student type
+                    String typeUpper = s.toUpperCase();
+                    return typeUpper.equals("PHD") || typeUpper.equals("MS")
+                            || typeUpper.equals("U") || typeUpper.equals("UNDERGRAD");
+                }).toUpperCase();
+
+        // Get remaining info without any checks (assumed to be valid)
+        scan.nextLine(); // consume the newline
+        System.out.print("Enter the student info (separated by '|'):\n> ");
+        String[] info = scan.nextLine().trim().split("\\|");
+
+        // Add the right type of student to the appropriate list
+        String name = info[0];
+        switch (type) {
+            case "PHD": {
+                // Get the student info
+                String advisor = info[1], subject = info[2];
+
+                // Retrieve the labs this student is in
+                List<Lab> labs = Stream.of(info[3].split(","))
+                        // map each CRN to the corresponding lab
+                        .map(crn -> classList.stream()
+                                // filter for classes with labs
+                                .filter(Lecture::getHasLabs)
+                                // find the lab with the matching CRN
+                                .flatMap(l -> l.labs.stream())
+                                .filter(l -> l.getCrn().equals(crn))
+                                .findFirst())
+                        // filter out any empty optionals (non-existent labs)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList();
+
+                // Add the student to the list
+                phdStudents.add(new PhdStudent(
+                        name, advisor, subject, id, new ArrayList<>(labs)));
+                break;
+            }
+
+            case "MS": {
+                // Get the list of lectures from either CRNs or prefixes
+                List<Lecture> lecs = Stream.of(info[1].split(","))
+                        // map each CRN or prefix to the corresponding lecture
+                        .map(str -> classList.stream()
+                                // find the lecture with the matching CRN or prefix
+                                .filter(l -> l.getCrn().equalsIgnoreCase(str)
+                                        || l.getPrefix().equalsIgnoreCase(str))
+                                .findFirst())
+                        // filter out any empty optionals (non-existent lectures)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList();
+
+                // Add the student to the list
+                msStudents.add(new MsStudent(
+                        name, id, new ArrayList<>(lecs)));
+                break;
+            }
+
+            case "U":
+            case "UNDERGRAD": {
+                // Get the student info
+                String gpaStr = info[1], residentStr = info[2];
+                double gpa = Double.parseDouble(gpaStr); // parse the GPA (assumed to be valid)
+                boolean resident = List.of("yes", "y", "true", "t")
+                        .contains(residentStr.toLowerCase()); // parse the resident status in any boolean format
+
+                // Get the list of lectures from either CRNs or prefixes
+                List<Lecture> lecs = Stream.of(info[3].split(","))
+                        // map each CRN or prefix to the corresponding lecture
+                        .map(str -> classList.stream()
+                                // find the lecture with the matching CRN or prefix
+                                .filter(l -> l.getCrn().equalsIgnoreCase(str)
+                                        || l.getPrefix().equalsIgnoreCase(str))
+                                .findFirst())
+                        // filter out any empty optionals (non-existent lectures)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .toList();
+
+                // Construct the student and add them to the list
+                undergradStudents.add(new UndergraduateStudent(
+                        name, id, gpa, resident, new ArrayList<>(lecs)));
+                break;
+            }
+        }
+
+        // Print a success message
+        System.out.printf("[ %s ] added successfully!\n\n", name);
+    }
 
     public static void delStudent() {
         System.out.println("del student");
-    }
-
-    public static void searchStudent() {
-        System.out.println("search student");
     }
 
     // done
@@ -275,6 +371,7 @@ public class ProjectDriver {
 
         // Otherwise, print the student's invoice
         student.printInvoice();
+        System.out.println();
     }
 
 
@@ -282,17 +379,17 @@ public class ProjectDriver {
     public static void printStudents() {
         System.out.println("PhD Students");
         System.out.println("------------");
-        phdStudents.forEach(s -> System.out.println("    - " + s.getName()));
+        phdStudents.forEach(s -> System.out.println("  - " + s.getName()));
         System.out.println();
 
         System.out.println("MS Students");
         System.out.println("-----------");
-        msStudents.forEach(s -> System.out.println("    - " + s.getName()));
+        msStudents.forEach(s -> System.out.println("  - " + s.getName()));
         System.out.println();
 
         System.out.println("Underdraduate Students");
         System.out.println("----------------------");
-        undergradStudents.forEach(s -> System.out.println("    - " + s.getName()));
+        undergradStudents.forEach(s -> System.out.println("  - " + s.getName()));
         System.out.println();
     }
 
