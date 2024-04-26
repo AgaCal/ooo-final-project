@@ -421,7 +421,7 @@ public class ProjectDriver {
         msStudents.forEach(s -> System.out.println("  - " + s.getName()));
         System.out.println();
 
-        System.out.println("Underdraduate Students");
+        System.out.println("Undergraduate Students");
         System.out.println("----------------------");
         undergradStudents.forEach(s -> System.out.println("  - " + s.getName()));
         System.out.println();
