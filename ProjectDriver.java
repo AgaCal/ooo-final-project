@@ -132,7 +132,7 @@ public class ProjectDriver {
 
     // Checks if a given string is a valid student ID
     public static boolean isValidId(String id) {
-        return id.matches("[A-za-z]{2}\\d{4}");
+        return id.matches("[A-Za-z]{2}\\d{4}");
     }
 
     // Retrieves a character (only one) from the user; strings of length != 1 will throw an exception
