@@ -438,16 +438,19 @@ public class ProjectDriver {
         System.out.println("PhD Students");
         System.out.println("------------");
         phdStudents.forEach(s -> System.out.println("  - " + s.getName()));
+        if (phdStudents.size() == 0) System.out.println("  - (no Phd students enrolled)");
         System.out.println();
 
         System.out.println("MS Students");
         System.out.println("-----------");
         msStudents.forEach(s -> System.out.println("  - " + s.getName()));
+        if (phdStudents.size() == 0) System.out.println("  - (no Ms students enrolled)");
         System.out.println();
 
         System.out.println("Undergraduate Students");
         System.out.println("----------------------");
         undergradStudents.forEach(s -> System.out.println("  - " + s.getName()));
+        if (phdStudents.size() == 0) System.out.println("  - (no Undergraduate students enrolled)");
         System.out.println();
     }
 
@@ -501,12 +504,14 @@ public class ProjectDriver {
         String classNum = getValidInput("Enter the Class/Lab Number:\n> ", "Invalid input!",
                 scan::next, (s) -> s.matches("\\d{5}"));
 
+        System.out.println();
+
         // Iterate through the list of lectures
         for (Lecture currentLec : classList) {
             // Check the current lecture
             if (currentLec.getCrn().equals(classNum)) {
                 // If this lecture matches, print the info and return
-                System.out.printf("[ %s,%s,%s ]\n", currentLec.getCrn(), currentLec.getPrefix(), currentLec.getLectureName());
+                System.out.printf("[ %s,%s,%s ]\n\n", currentLec.getCrn(), currentLec.getPrefix(), currentLec.getLectureName());
                 return;
             }
 
@@ -517,7 +522,7 @@ public class ProjectDriver {
                     if (currentLab.getCrn().equals(classNum)) {
                         // If we found the lab, print the info and return
                         System.out.printf("Lab for [ %s,%s,%s ]\n", currentLec.getCrn(), currentLec.getPrefix(), currentLec.getLectureName());
-                        System.out.println("Lab room " + currentLab.getClassroom());
+                        System.out.println("Lab room " + currentLab.getClassroom() + "\n");
                         return;
                     }
                 }
@@ -552,22 +557,28 @@ public class ProjectDriver {
         if (toDel.getLectureType() == LectureType.GRAD) {
             for (int i = 0; i < msStudents.size(); i++) {
 
-            	for (Lecture thisLec: msStudents.get(i).classes) {
-            		if (thisLec.getCrn().equals(classNum)) {
-            			System.out.printf("Students are enrolled in class with number %s. Class cannot be deleted!\n\n", classNum);
-            			return;
-            		}
+            	Lecture studentLec = msStudents.get(i).classes.stream()
+            		.filter(s -> s.getCrn().equalsIgnoreCase(classNum))
+            		.findFirst()
+            		.orElse(null);
+
+            	if (studentLec != null) {
+             		System.out.printf("Students are enrolled in class with number %s. Class cannot be deleted!\n\n", classNum);
+            		return;           		
             	}
 
             }
         } else {
             for (int i = 0; i < undergradStudents.size(); i++) {
 
-            	for (Lecture thisLec: undergradStudents.get(i).classes) {
-            		if (thisLec.getCrn().equals(classNum)) {
-            			System.out.printf("Students are enrolled in class with number %s. Class cannot be deleted!\n\n", classNum);
-            			return;
-            		}
+            	Lecture studentLec = undergradStudents.get(i).classes.stream()
+            		.filter(s -> s.getCrn().equalsIgnoreCase(classNum))
+            		.findFirst()
+            		.orElse(null);
+
+            	if (studentLec != null) {
+             		System.out.printf("Students are enrolled in class with number %s. Class cannot be deleted!\n\n", classNum);
+            		return;           		
             	}
 
 	        }
@@ -626,6 +637,8 @@ public class ProjectDriver {
         String classNum = getValidInput("Enter the Lecture Number to Add Lab To:\n> ", "Invalid input!",
                 scan::next, (s) -> s.matches("\\d{5}"));
 
+        System.out.println();
+
         // Find associated lecture in class List or null
         Lecture addTo = classList.stream()
                 .filter(s -> s.getCrn().equalsIgnoreCase(classNum))
@@ -634,10 +647,10 @@ public class ProjectDriver {
 
         // If class not found or it is an online class that can't have labs return
         if (addTo == null) {
-            System.out.println(classNum + " is invalid.\nPlease Try Again Later!");
+            System.out.println(classNum + " is invalid.\nPlease Try Again Later!\n");
             return;
         } else if (addTo.getLectureMode() == LectureMode.ONLINE) {
-            System.out.println(classNum + " is an online class, no labs can be added!");
+            System.out.println(classNum + " is an online class, no labs can be added!\n");
             return;
         }
 
@@ -716,7 +729,7 @@ public class ProjectDriver {
         } finally {
             // Close scanner and output successful message
             readClasses.close();
-            System.out.println("\n[ " + info[0] + "," + info[1] + 
+            System.out.println("[ " + info[0] + "," + info[1] + 
             	" ] added as lab to [ " + classNum + "," + addTo.getPrefix() + "," + addTo.getLectureName() + " ] !\n");
             return;
         }

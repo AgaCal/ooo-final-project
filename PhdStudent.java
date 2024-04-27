@@ -15,7 +15,7 @@ public class PhdStudent extends GraduateStudent {
 		System.out.println("VALENCE COLLEGE\nORLANDO FL 10101\n---------------------\n");
 		System.out.println("Fee Invoice Prepared for Student: \n" + getId() + "-" + getName() + "\n");
 		
-		System.out.println("RESEARCH\n" + subject + "\t\t\t\t$700.00");
+		System.out.println("RESEARCH\n" + subject + "\t\t\t$700.00");
 
 		System.out.println("\nHealth & id fees\t\t$35.00");
 		
