@@ -21,7 +21,7 @@ public class UndergraduateStudent extends Student {
 
 		if (!resident) rate *= 2;
 
-		System.out.println("1 Credit Hour = $" + rate);
+		System.out.printf("1 Credit Hour = $%.2f\n", rate);
 		System.out.println("\nCRN\tCRN_PREFIX\tCR_HOURS");
 
 		for(int i = 0; i < classes.size(); i++) {
@@ -35,6 +35,7 @@ public class UndergraduateStudent extends Student {
 		}
 
 		System.out.println("\nHealth & id fees\t\t$35.00");
+		total += 35;
 
 		if (gpa >= 3.5 && total >= 500) {
 			System.out.printf("----------------------------------------\n\t\t\t\t$%.2f\n", total);

@@ -444,13 +444,13 @@ public class ProjectDriver {
         System.out.println("MS Students");
         System.out.println("-----------");
         msStudents.forEach(s -> System.out.println("  - " + s.getName()));
-        if (phdStudents.size() == 0) System.out.println("  - (no Ms students enrolled)");
+        if (msStudents.size() == 0) System.out.println("  - (no Ms students enrolled)");
         System.out.println();
 
         System.out.println("Undergraduate Students");
         System.out.println("----------------------");
         undergradStudents.forEach(s -> System.out.println("  - " + s.getName()));
-        if (phdStudents.size() == 0) System.out.println("  - (no Undergraduate students enrolled)");
+        if (undergradStudents.size() == 0) System.out.println("  - (no Undergraduate students enrolled)");
         System.out.println();
     }
 
@@ -553,7 +553,13 @@ public class ProjectDriver {
             return;
         }
 
-        // Checks to see if students are enrolled in the class. If any student is taking the class, the class cannot be deleted (per announcement on April 13)ß
+        //If class has labs, cannot be deleted (per announcement on April 22)
+        if(toDel.getHasLabs()){
+        	System.out.printf("Class number %s has labs and cannot be deleted!\n\n", classNum);
+        	return;
+        }
+
+        // Checks to see if students are enrolled in the class. If any student is taking the class, the class cannot be deleted (per announcement on April 13)
         if (toDel.getLectureType() == LectureType.GRAD) {
             for (int i = 0; i < msStudents.size(); i++) {
 
@@ -655,7 +661,7 @@ public class ProjectDriver {
         }
 
         // Otherwise it's valid and take the rest of info in
-        System.out.println(classNum + " is valid. Enter the rest of the information (\"CRN,Location\": ");
+        System.out.println(classNum + " is valid. Enter the rest of the information (CRN,Location): \n");
         scan.nextLine();
         String other = scan.nextLine();
         String[] info = other.split(",");

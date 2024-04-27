@@ -15,7 +15,7 @@ public class MsStudent extends GraduateStudent {
 		double rate = 300;
 		double total = 0;
 
-		System.out.println("1 Credit Hour = $" + rate);
+		System.out.printf("1 Credit Hour = $%.2f\n", rate);
 		System.out.println("\nCRN\tCRN_PREFIX\tCR_HOURS");
 
 		for(int i = 0; i < classes.size(); i++) {
@@ -29,6 +29,8 @@ public class MsStudent extends GraduateStudent {
 		}
 
 		System.out.println("\nHealth & id fees\t\t$35.00");
+		total += 35;
+
 		System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
 	}
 }
