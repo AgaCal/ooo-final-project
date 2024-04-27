@@ -120,7 +120,7 @@ public class ProjectDriver {
             } catch (InputMismatchException e) {
                 // If input mismatched, the buffer won't skip the invalid input
                 scan.next();
-            }
+            } catch (Exception e) { /* noop */ }
 
             // Print an error message if the input was invalid (either bad input or failed validation)
             System.out.println(err);
@@ -136,9 +136,9 @@ public class ProjectDriver {
     }
 
     // Retrieves a character (only one) from the user; strings of length != 1 will throw an exception
-    public static char getSingleCharacter(Scanner scan) throws InputMismatchException {
+    public static char getSingleCharacter(Scanner scan) throws StringIndexOutOfBoundsException {
         String input = scan.next();
-        if (input.length() != 1) throw new InputMismatchException();
+        if (input.length() != 1) throw new StringIndexOutOfBoundsException();
         return input.charAt(0);
     }
 
@@ -354,8 +354,8 @@ public class ProjectDriver {
                         // map each CRN or prefix to the corresponding lecture
                         .map(str -> classList.stream()
                                 // find the lecture with the matching CRN or prefix
-                                .filter(l -> l.getCrn().equalsIgnoreCase(str)
-                                        || l.getPrefix().equalsIgnoreCase(str))
+                                .filter(lec -> lec.getCrn().equalsIgnoreCase(str)
+                                        || lec.getPrefix().equalsIgnoreCase(str))
                                 .findFirst())
                         // filter out any empty optionals (non-existent lectures)
                         .filter(Optional::isPresent)
