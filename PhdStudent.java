@@ -33,7 +33,6 @@ public class PhdStudent extends GraduateStudent {
 			System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
 		}
 
-		System.out.println();
 	}
 }
 

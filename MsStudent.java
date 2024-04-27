@@ -30,7 +30,6 @@ public class MsStudent extends GraduateStudent {
 
 		System.out.println("\nHealth & id fees\t\t$35.00");
 		System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
-		System.out.println();
 	}
 }
 

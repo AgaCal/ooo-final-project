@@ -43,8 +43,5 @@ public class UndergraduateStudent extends Student {
 		} else {
 			System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
 		}
-
-		System.out.println();
-
 	}
 }
