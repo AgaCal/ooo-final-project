@@ -264,6 +264,30 @@ public class ProjectDriver {
                             || typeUpper.equals("U") || typeUpper.equals("UNDERGRAD");
                 }).toUpperCase();
 
+        // Print instructions for inputing student information
+        System.out.println("\nStudent Info Format:");
+        switch (type) {
+        	case "PHD": {
+        		System.out.println("<name>|<advisor>|<subject>|<list of lab numbers>");
+        		System.out.println("Labs should be entered by lab number, separated by commas (no spaces)\n");
+        		break;
+        	}
+
+        	case "MS": {
+        		System.out.println("<name>|<list of lectures>");
+        		System.out.println("Lectures should be entered by CRN or prefix, separated by commas (no spaces)\n");
+        		break;
+        	}
+        	case "U":
+        	case "UNDERGRAD": {
+        		System.out.println("<name>|<gpa>|<resident status>|<list of lectures>");
+        		System.out.println("Lectures should be entered by CRN or prefix, separated by commas (no spaces)\n");
+        		break;
+        	}
+
+        }
+
+
         // Get remaining info without any checks (assumed to be valid)
         scan.nextLine(); // consume the newline
         System.out.print("Enter the student info (separated by '|'):\n> ");
@@ -504,39 +528,55 @@ public class ProjectDriver {
         System.out.println("[ No such lecture/lab ]\n");
     }
 
-    //done
+    // done
     public static void delClass() {
-    	//Get a valid Lecture number from user
+    	// Get a valid Lecture number from user
         String classNum = getValidInput("Enter the Class Number:\n> ", "Invalid input!",
        	scan::next, (s) -> s.matches("\\d{5}"));
 
-        //Find associated lecture in class List or null
+        System.out.println();
+
+        // Find associated lecture in class List or null
         Lecture toDel = classList.stream()
         		.filter(s -> s.getCrn().equalsIgnoreCase(classNum))
                 .findFirst()
                 .orElse(null);
 
-        //If no class found then return
+        // If no class found then return
         if (toDel == null) {
             System.out.printf("No class with number %s\n\n", classNum);
             return;
         }
 
-        //Remove the class from each of the respective students that can take the class
+        // Checks to see if students are enrolled in the class. If any student is taking the class, the class cannot be deleted (per announcement on April 13)ß
         if (toDel.getLectureType() == LectureType.GRAD) {
             for (int i = 0; i < msStudents.size(); i++) {
-                msStudents.get(i).classes.remove(toDel);
+
+            	for (Lecture thisLec: msStudents.get(i).classes) {
+            		if (thisLec.getCrn().equals(classNum)) {
+            			System.out.printf("Students are enrolled in class with number %s. Class cannot be deleted!\n\n", classNum);
+            			return;
+            		}
+            	}
+
             }
         } else {
             for (int i = 0; i < undergradStudents.size(); i++) {
-                undergradStudents.get(i).classes.remove(toDel);
+
+            	for (Lecture thisLec: undergradStudents.get(i).classes) {
+            		if (thisLec.getCrn().equals(classNum)) {
+            			System.out.printf("Students are enrolled in class with number %s. Class cannot be deleted!\n\n", classNum);
+            			return;
+            		}
+            	}
+
 	        }
 	    }
 
-        //Remove the class from the classList
+        // Remove the class from the classList
         classList.remove(toDel);
 
-        //Try to open lec.txt and scan it
+        // Try to open lec.txt and scan it
         Scanner readClasses;
         File lec;
         try {
@@ -547,52 +587,52 @@ public class ProjectDriver {
             return;
         }
 
-        //Try to make a tmp txt file to write everything to
+        // Try to make a tmp txt file to write everything to
         try {
             File tmpFile = new File("tmp.txt");
             FileWriter writer = new FileWriter(tmpFile, true);
 
-            //Read everything in from lec.txt
+            // Read everything in from lec.txt
             while (readClasses.hasNextLine()) {
                 String read = readClasses.nextLine();
                 String[] readInfo = read.split(",");
 
-                //Skip the lecture that is to be removed
+                // Skip the lecture that is to be removed
                 if (!readInfo[0].equals(classNum)) {
                     writer.write(read);
                     writer.write("\n");
                 }
             }
 
-            //Rename the tmp file to lec to overwrite it
+            // Rename the tmp file to lec to overwrite it
             tmpFile.renameTo(lec);
-            //Close the writer
+            // Close the writer
             writer.close();
 
         } catch (IOException e) {
             System.out.println("Something went wrong.\nPlease Try Again Later!");
         } finally {
-        	//Close scanner and output successful message
+        	// Close scanner and output successful message
             readClasses.close();
-            System.out.println("\n[ " + classNum + "," + toDel.getPrefix() + "," + toDel.getLectureName() + " ] deleted!\n");
+            System.out.println("[ " + classNum + "," + toDel.getPrefix() + "," + toDel.getLectureName() + " ] deleted!\n");
             return;
         }
 
     }
 
-    //done
+    // done
     public static void addLab() {
-    	//Get a valid Lecture number from user
+    	// Get a valid Lecture number from user
         String classNum = getValidInput("Enter the Lecture Number to Add Lab To:\n> ", "Invalid input!",
                 scan::next, (s) -> s.matches("\\d{5}"));
 
-        //Find associated lecture in class List or null
+        // Find associated lecture in class List or null
         Lecture addTo = classList.stream()
                 .filter(s -> s.getCrn().equalsIgnoreCase(classNum))
                 .findFirst()
                 .orElse(null);
 
-        //If class not found or it is an online class that can't have labs return
+        // If class not found or it is an online class that can't have labs return
         if (addTo == null) {
             System.out.println(classNum + " is invalid.\nPlease Try Again Later!");
             return;
@@ -601,13 +641,13 @@ public class ProjectDriver {
             return;
         }
 
-        //Otherwise it's valid and take the rest of info in
+        // Otherwise it's valid and take the rest of info in
         System.out.println(classNum + " is valid. Enter the rest of the information (\"CRN,Location\": ");
         scan.nextLine();
         String other = scan.nextLine();
         String[] info = other.split(",");
 
-        //If the class number already exists then return
+        // If the class number already exists then return
         for (Lecture l : classList) {
             if (l.getCrn().equals(info[0])) {
                 System.out.println("Sorry that Class Number already exists.\nPlease try again later!");
@@ -623,19 +663,19 @@ public class ProjectDriver {
             }
         }
 
-        //Otherwise make a new lab with given info
+        // Otherwise make a new lab with given info
         Lab toAdd = new Lab(info[0], info[1]);
 
-        //If given lecture has no labs make a lab list for it and set hasLabs to true
+        // If given lecture has no labs make a lab list for it and set hasLabs to true
         if (!addTo.getHasLabs()) {
             addTo.setHasLabs(true);
             addTo.labs = new ArrayList<Lab>();
         }
 
-        //Add the lab to the lecture's lablist
+        // Add the lab to the lecture's lablist
         addTo.labs.add(toAdd);
 
-        //Try to open lec.txt and scan it
+        // Try to open lec.txt and scan it
         Scanner readClasses;
         File lec;
         try {
@@ -646,35 +686,35 @@ public class ProjectDriver {
             return;
         }
 
-        //Try to make a tmp txt file to write everything to
+        // Try to make a tmp txt file to write everything to
         try {
             File tmpFile = new File("tmp.txt");
             FileWriter writer = new FileWriter(tmpFile, true);
 
-            //Read everything in from lec.txt
+            // Read everything in from lec.txt
             while (readClasses.hasNextLine()) {
                 String read = readClasses.nextLine();
                 String[] readInfo = read.split(",");
 
-                //If at the lecture to add lab to
-                //Then print the new updated lecture with added lab
+                // If at the lecture to add lab to
+                // Then print the new updated lecture with added lab
                 if (readInfo[0].equals(classNum)) {
                     writer.write(addTo.toString());
-                } else { //Otherwise just write straight from lec.txt
+                } else { // Otherwise just write straight from lec.txt
                     writer.write(read);
                     writer.write("\n");
                 }
             }
 
-            //Rename the tmp file to lec to overwrite it
+            // Rename the tmp file to lec to overwrite it
             tmpFile.renameTo(lec);
-            //Close the writer
+            // Close the writer
             writer.close();
 
         } catch (IOException e) {
             System.out.println("Something went wrong.\nPlease Try Again Later!");
         } finally {
-            //Close scanner and output successful message
+            // Close scanner and output successful message
             readClasses.close();
             System.out.println("\n[ " + info[0] + "," + info[1] + 
             	" ] added as lab to [ " + classNum + "," + addTo.getPrefix() + "," + addTo.getLectureName() + " ] !\n");
