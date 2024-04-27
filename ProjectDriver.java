@@ -1,5 +1,5 @@
 // COP3330 Final Project
-// Group Members: Agnieszka Calkowska, Erick Washbourne, Tomas Baron
+// Group Members: Aga Calkowska, Erick Washbourne, Tomas Baron
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -741,4 +741,289 @@ public class ProjectDriver {
         }
     }
 
+}
+
+
+class IdException extends Exception {
+    @Override
+    public String toString() {
+        return "Invalid ID format or ID already exists\nTry again later!";
+    }
+}
+
+class Lecture {
+    private String crn;
+    private String prefix;
+    private String lectureName;
+    private LectureType lectureType; //Grad or UnderGrad
+    private LectureMode lectureMode; //F2F, Mixed or Online
+    private String classroom;
+    private boolean hasLabs;
+    private int creditHours;
+    ArrayList<Lab> labs;
+    // _________________
+    //Helper method-used in constructors to set up the common fields
+    private void LectureCommonInfoSetUp (String crn, String prefix, String lectureName, LectureType lectureType, LectureMode lectureMode) {
+        this.crn = crn;
+        this.prefix = prefix;
+        this.lectureName = lectureName;
+        this.lectureType = lectureType;
+        this.lectureMode = lectureMode;
+    }
+    
+    // Non-online with Labs
+    public Lecture(String crn, String prefix, String lectureName, LectureType lectureType, LectureMode lectureMode, String classroom, boolean hasLabs, int creditHours, ArrayList<Lab> labs) {
+        LectureCommonInfoSetUp(crn,prefix,lectureName,lectureType,lectureMode);
+        this.classroom = classroom;
+        this.hasLabs = hasLabs;
+        this.creditHours = creditHours;
+        this.labs = labs;
+    }
+
+    // Constructor for Non-online without Labs
+    public Lecture( String crn, String prefix, String lectureName, LectureType lectureType, LectureMode lectureMode, String classroom, boolean hasLabs, int creditHours) {
+        LectureCommonInfoSetUp(crn,prefix,lectureName,lectureType,lectureMode);
+        this.classroom = classroom;
+        this.hasLabs = hasLabs;
+        this.creditHours = creditHours;
+    }
+
+    // Constructor for Online Lectures
+    public Lecture(String crn, String prefix, String lectureName, LectureType lectureType, LectureMode lectureMode, int creditHours) {
+        LectureCommonInfoSetUp(crn,prefix,lectureName,lectureType,lectureMode);
+        this.classroom = classroom;
+        this.hasLabs = hasLabs;
+        this.creditHours = creditHours;
+    }
+
+    public String getCrn() {
+        return crn;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public String getLectureName() {
+        return lectureName;
+    }
+
+    public LectureType getLectureType() {
+        return lectureType;
+    }
+
+    public LectureMode getLectureMode() {
+        return lectureMode;
+    }
+
+    public String getClassroom() {
+        return classroom;
+    }
+
+    public boolean getHasLabs() {
+        return hasLabs;
+    }
+
+    public int getCreditHours() {
+        return creditHours;
+    }
+
+    public void setHasLabs(boolean hasLabs){
+        this.hasLabs = hasLabs;
+    }
+
+    //________
+    @Override
+    public String toString() {
+        String yesNo = hasLabs ? "YES" : "NO";
+        String lectureAndLabs = crn + "," + prefix + "," + lectureName + "," + lectureType + "," + lectureMode;
+        if(lectureMode != LectureMode.ONLINE){
+            lectureAndLabs += "," + classroom;
+        }
+        lectureAndLabs += "," + yesNo + ","+ creditHours+"\n";
+        
+        if ( labs != null ) {//printing corresponding labs
+            //lectureAndLabs+="\n";
+            for (Lab lab: labs)
+                lectureAndLabs+= lab +"\n";
+        }
+
+        return lectureAndLabs;
+    }
+}
+
+class Lab {
+    private String crn;
+    private String classroom;
+
+    public String getCrn() {
+        return crn;
+    }
+
+    public void setCrn(String crn) {
+        this.crn = crn;
+    }
+
+    public String getClassroom() {
+        return classroom;
+    }
+
+    public void setClassroom(String classroom) {
+        this.classroom = classroom;
+    }
+
+    @Override
+    public String toString() {
+        return crn + "," + classroom;
+    }
+
+    public Lab(String crn, String classroom) {
+        this.crn = crn;
+        this.classroom = classroom;
+    }
+}//end of class Lab
+
+
+abstract class Student {
+    private String name, id;
+
+    public Student(String name, String id) {
+        this.name = name;
+        this.id = id;
+    }
+
+    abstract public void printInvoice();
+
+    public String getName() {
+        return name;
+    }
+
+    public String getId() {
+        return id;
+    }
+}
+
+class UndergraduateStudent extends Student {
+    private boolean resident;
+    private double gpa;
+    ArrayList<Lecture> classes;
+
+    public UndergraduateStudent(String name, String id, double gpa, boolean resident, ArrayList<Lecture> classes) {
+        super(name, id);
+        this.classes = classes;
+        this.resident = resident;
+        this.gpa = gpa;
+    }
+
+    public void printInvoice() {
+        System.out.println("VALENCE COLLEGE\nORLANDO FL 10101\n---------------------\n");
+        System.out.println("Fee Invoice Prepared for Student: \n" + getId() + "-" + getName() + "\n");
+
+        double rate = 120.25;
+        double total = 0;
+
+        if (!resident) rate *= 2;
+
+        System.out.printf("1 Credit Hour = $%.2f\n", rate);
+        System.out.println("\nCRN\tCRN_PREFIX\tCR_HOURS");
+
+        for(int i = 0; i < classes.size(); i++) {
+
+            String crn = classes.get(i).getCrn();
+            String prefix = classes.get(i).getPrefix();
+            int crHrs = classes.get(i).getCreditHours();
+
+            System.out.printf("%s\t%s\t\t%d\t$%.2f\n", crn, prefix, crHrs, crHrs*rate);
+            total += crHrs*rate;
+        }
+
+        System.out.println("\nHealth & id fees\t\t$35.00");
+        total += 35;
+
+        if (gpa >= 3.5 && total >= 500) {
+            System.out.printf("----------------------------------------\n\t\t\t\t$%.2f\n", total);
+            System.out.printf("\t\t\t\t-$%.2f\n", total*.25);
+            System.out.printf("\t\t\t\t-------\n\tTotal Payments\t\t$%.2f\n", total*.75);
+        } else {
+            System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
+        }
+    }
+}
+
+abstract class GraduateStudent extends Student {
+
+    public GraduateStudent(String name, String id) {
+        super(name,id);
+    }
+}
+
+class MsStudent extends GraduateStudent {
+    ArrayList<Lecture> classes;
+
+    public MsStudent(String name, String id, ArrayList<Lecture> classes) {
+        super(name, id);
+        this.classes = classes;
+    }
+
+    public void printInvoice() {
+        System.out.println("VALENCE COLLEGE\nORLANDO FL 10101\n---------------------\n");
+        System.out.println("Fee Invoice Prepared for Student: \n" + getId() + "-" + getName() + "\n");
+
+        double rate = 300;
+        double total = 0;
+
+        System.out.printf("1 Credit Hour = $%.2f\n", rate);
+        System.out.println("\nCRN\tCRN_PREFIX\tCR_HOURS");
+
+        for(int i = 0; i < classes.size(); i++) {
+
+            String crn = classes.get(i).getCrn();
+            String prefix = classes.get(i).getPrefix();
+            int crHrs = classes.get(i).getCreditHours();
+
+            System.out.printf("%s\t%s\t\t%d\t$%.2f\n", crn, prefix, crHrs, crHrs*rate);
+            total += crHrs*rate;
+        }
+
+        System.out.println("\nHealth & id fees\t\t$35.00");
+        total += 35;
+
+        System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
+    }
+}
+
+class PhdStudent extends GraduateStudent {
+    private String advisor, subject;
+    ArrayList<Lab> labs;
+
+    public PhdStudent(String name, String advisor, String subject, String id, ArrayList<Lab> labs) {
+        super(name, id);
+        this.labs = labs;
+        this.advisor = advisor;
+        this.subject = subject;
+    }
+
+    public void printInvoice() {
+        System.out.println("VALENCE COLLEGE\nORLANDO FL 10101\n---------------------\n");
+        System.out.println("Fee Invoice Prepared for Student: \n" + getId() + "-" + getName() + "\n");
+        
+        System.out.println("RESEARCH\n" + subject + "\t\t\t\t$700.00");
+
+        System.out.println("\nHealth & id fees\t\t$35.00");
+        
+        double total = 735;
+        if (labs.size() == 2) {
+            System.out.printf("----------------------------------------\n\t\t\t\t$%.2f\n", total);
+            System.out.printf("\t\t\t\t-$%.2f\n", total*.50);
+            System.out.printf("\t\t\t\t-------\n\tTotal Payments\t\t$%.2f\n", total*.50);
+        } else if (labs.size() >= 3) {
+            System.out.printf("----------------------------------------\n\t\t\t\t$%.2f\n", total);
+            System.out.printf("\t\t\t\t-$%.2f\n", 700.00);
+            total -= 700;
+            System.out.printf("\t\t\t\t-------\n\tTotal Payments\t\t$%.2f\n", total);
+        } else {
+            System.out.printf("----------------------------------------\n\tTotal Payments\t\t$%.2f\n", total);
+        }
+
+    }
 }
